@@ -1,0 +1,61 @@
+<!-- using vue js -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Timed To Do List</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body>
+        <h1>Gestionnaire de tache hebdomadaire</h1>
+        <div id="app">
+            <!-- in this implementation the notification are done using the div id='notification'-->
+            <div id="encapsule">
+                <!-- this div is for showing time-->
+                <h3>Il est actuellement {{hours}}:{{minutes}}:{{seconds}}. </h3>
+        
+                <!-- this is the ul for the tasks-->
+                <ul id="tasks">
+                    <li v-for="(task, index) in tasks || []" :key="index" :class="{'done task': task.tobedone, 'notdone task': !task.tobedone}">
+                        <input type="checkbox" v-model="task.tobedone" :disabled="isInvalidTask(task)">
+                        <input type="number" min="0" max="11" v-model="task.hour">
+                        <input type="number" min="0" max="59" v-model="task.minutes">
+                        <input type="text" v-model="task.text" placeholder="Entrez une tache">
+                        <button @click="removeTask(index)">-</button>
+                    </li>                      
+                </ul>
+
+                <!-- this is the button for adding a task-->
+                <button @click="addTask">+</button>
+                <hr>
+            </div>
+            
+            <!-- in case this button is clicked the sound can be played when the task is done-->
+            <input id="sound" type="checkbox" v-model="sound"> turn on sound
+
+            <!-- this div is present in case there exists a notification to stop user interaction-->
+            <div id="block" v-if="notif.length">
+
+                <!-- this div shows all current notifications-->
+                <ul id="notification">
+                    <li v-for="task in notif" :key="task.text">
+                        {{ task.text }}
+                        <hr>
+                        <span id="fermer"><a href="#" @click="fermer(task)">Fermer</a></span>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <script src="app.js"></script>
+    </body>
+    <script>
+        window.addEventListener("beforeunload", function (e) {
+            e.preventDefault();
+        });
+        window.addEventListener("unload", function (e) {
+            e.preventDefault();
+        });
+    </script>
+</html>
