@@ -18,7 +18,12 @@ const routes = [
     component: () => import('../views/EditJobView.vue')
   },
   {
-    path: ':catchAll(.*)',
+    path: '/detail/:id',
+    name: 'detail',
+    component: () => import('../views/JobDetail.vue')
+  },
+  {
+    path: '/:catchAll(.*)',
     name: 'not-found',
     redirect: { name: 'home' }
   }
