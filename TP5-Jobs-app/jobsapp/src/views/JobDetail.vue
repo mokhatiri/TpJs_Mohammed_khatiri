@@ -6,8 +6,6 @@
     <p>date de création : {{ date }}</p>
 </template>
 <script>
-import data from "@/assets/jobs.json"
-
 export default {
     data(){
         return {
@@ -19,12 +17,17 @@ export default {
         }
     },
     mounted(){
-        this.id = this.$route.params.id;
-        let job = data.find(job => job.id == this.id);
-        this.title = job.titre;
-        this.description = job.description;
-        this.salaire = job.salaire;
-        this.date = job["date de création"];
+        fetch(this.$apiURL + '/jobs/' + this.$route.params.id)
+        .then(res => res.json())
+        .then((job) => this.setJob(job));
+    },
+    methods : {
+        setJob(job){
+            this.title = job.titre;
+            this.description = job.description;
+            this.salaire = job.salaire;
+            this.date = job["date de création"];
+        }
     }
 }
 </script>

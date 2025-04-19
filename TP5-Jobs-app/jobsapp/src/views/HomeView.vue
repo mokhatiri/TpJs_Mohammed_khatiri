@@ -15,8 +15,6 @@
 // @ is an alias to /src
 import FilterNav from '@/components/FilterNav.vue'
 import JobDetail from '@/views/JobDetail.vue'
-import data from '@/assets/jobs.json'
-
 export default {
   name: 'HomeView',
   components: {
@@ -25,12 +23,15 @@ export default {
   },
   data() {
     return {
-      jobs: data,
+      jobs: [],
       title: "",
       content: "",
       min_salary: 0,
       max_salary: 0
     }
+  },
+  mounted(){
+    this.fetchJobs();
   },
   methods: {
     handleValueChanged(newval){
@@ -39,23 +40,35 @@ export default {
       this.min_salary = newval.min_salary;
       this.max_salary = newval.max_salary;
 
-      
-      let filtered = data.filter(job => {
-        if(this.title && !job.titre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(this.title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase())){
-          return false;
-        }
-        if(this.content && !job.description.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(this.content.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase())){
-          return false;
-        }
-        if(this.min_salary && job.salaire.replace(/[^0-9.-]+/g, "") < this.min_salary){
-          return false;
-        }
-        if(this.max_salary && job.salaire.replace(/[^0-9.-]+/g, "") > this.max_salary){
-          return false;
-        }
-        return true;
-      });
-      this.jobs = filtered;
+      fetch(this.$apiURL + '/jobs')
+      .then(response => response.json())
+      .then(data => {
+        this.jobs = data;
+        let filtered = data.filter(job => {
+          if(this.title && !job.titre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(this.title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase())){
+            return false;
+          }
+          if(this.content && !job.description.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(this.content.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase())){
+            return false;
+          }
+          if(this.min_salary && job.salaire.replace(/[^0-9.-]+/g, "") < this.min_salary){
+            return false;
+          }
+          if(this.max_salary && job.salaire.replace(/[^0-9.-]+/g, "") > this.max_salary){
+            return false;
+          }
+          return true;
+        });
+        this.jobs = filtered;
+      })
+    }
+  ,
+  fetchJobs(){
+      fetch(this.$apiURL + '/jobs')
+      .then(response => response.json())
+      .then(data => {
+        this.jobs = data;
+      })
     }
   }
 }

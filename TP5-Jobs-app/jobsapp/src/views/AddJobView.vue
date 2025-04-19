@@ -7,7 +7,8 @@
   <button @click="submit">submit</button>
 </template>
 <script>
-  import data from "@/assets/jobs.json"
+import { get } from 'core-js/core/dict';
+
   
   export default{
     data(){
@@ -36,21 +37,31 @@
           alert("Invalid description");
           return;
         }
-
-
         // first get the idea:
-        let id = data.length + 1;
         let job = {
-          id : id,
           titre : this.title,
           description : this.description,
           salaire : this.salaire.toLocaleString('fr-FR') + " MAD/an",
-          date : new Date().toLocaleDateString()
+          "date de création" : this.getCurrentDate()
         }
-        // now push
-        data.push(job);
-        // then
-        this.$router.push({name: 'home'});
+        fetch(this.$apiURL + '/jobs' , {
+          method: 'POST',
+          body: JSON.stringify(job)
+          // i wish i takes care of the id :)
+        })
+        .then(res => {
+          if(res.ok){
+            this.$router.push({name: 'home'});
+          }
+        })
+      },
+      getCurrentDate(){
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, "0"); // Ensure 2 digits
+        const month = String(today.getMonth() + 1).padStart(2, "0"); // Month is 0-based
+        const year = today.getFullYear();
+        
+        return `${day}/${month}/${year}`;
       }
     }
   }

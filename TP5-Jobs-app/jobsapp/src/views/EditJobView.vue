@@ -8,8 +8,6 @@
   <button @click="deleteJob">delete</button>
 </template>
 <script>
-import data from "@/assets/jobs.json"
-
 export default{
   data(){
     return {
@@ -21,30 +19,44 @@ export default{
     }
   },
   mounted(){
-    let id = this.$route.params.id;
-    let job = data.find(job => job.id == id);
-    this.title = job.titre;
-    this.description = job.description;
-    this.salaire = parseFloat(job.salaire.replace(/[^0-9.-]+/g, ""));
-    console.log(this.salaire);
+    fetch(this.$apiURL + '/jobs/' + this.$route.params.id)
+    .then(res => res.json())
+    .then((job) => this.setJob(job));
   },
   methods : {
+    setJob(job){
+      this.title = job.titre;
+      this.description = job.description;
+      this.salaire = parseFloat(job.salaire.replace(/[^0-9.-]+/g, ""));
+    },
     submit(){
-      // first get the idea:
-      let id = this.$route.params.id;
-      let job = data.find(job => job.id == id);
-      job.titre = this.title;
-      job.description = this.description;
-      job.salaire = this.salaire.toLocaleString('fr-FR') + " MAD/an";
-      // then
-      this.$router.push({name: 'home'});
+      fetch(this.$apiURL + '/jobs/' + this.$route.params.id, {
+        method: 'PUT',
+        body: 
+        JSON.stringify({
+          titre: this.title,
+          description: this.description,
+          salaire: this.salaire,
+          "date de création": Date.now()
+        })
+      })
+      .then(res => {
+        if(res.ok){
+          this.$router.push({name: 'home'});
+        }
+      })
     },
     deleteJob(){
       if(confirm("Are you sure you want to delete this job offer?")){
-        let id = this.$route.params.id;
-        let job = data.find(job => job.id == id);
-        data.splice(data.indexOf(job), 1);
-        this.$router.push({name: 'home'});
+
+        fetch(this.$apiURL + '/jobs/' + this.$route.params.id, {
+          method: 'DELETE'
+        })
+        .then(res => {
+          if(res.ok){
+            this.$router.push({name: 'home'});
+          }
+        })
       }
     }
   }
